@@ -87,5 +87,5 @@ protected:
 	
 	UINT64 GetFirstSectorAddress();
 	
-	BOOL Dump(HWND);
+	BOOL Dump();
 };

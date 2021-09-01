@@ -2,6 +2,7 @@
 #include "Trace.h"
 #include "VhdToDisk.h"
 #include "resource.h"
+#include <iostream>
 
 CVhdToDisk::CVhdToDisk(void)
 {
@@ -319,7 +320,7 @@ BOOL CVhdToDisk::ParseFirstSector(HWND hDlg)
 }
 
 
-BOOL CVhdToDisk::Dump(HWND phWnd)
+BOOL CVhdToDisk::Dump()
 {
 	BOOL bReturn = FALSE;
 	DWORD dwByteRead = 0;
@@ -363,18 +364,14 @@ BOOL CVhdToDisk::Dump(HWND phWnd)
 		return bReturn;
 	}
 
-	SendMessage(phWnd, MYWM_UPDATE_STATUS, (WPARAM)L"Start dumping...", 0);
-	SendMessage(GetDlgItem(phWnd, IDC_PROGRESS_DUMP), PBM_SETRANGE32, 0, (LPARAM)bats / 100);
+	std::cout << "Start dumping..." << std::endl;
 		
 	for(UINT32 b = 0; b < bats; b++)
 	{
 		if((b + 1) % 100 == 0)
 		{
 			WCHAR sText[256] = {0};
-			wsprintf(sText, L"dumping blocks... %d/%d", b + 1, bats);
-
-			SendMessage(phWnd, MYWM_UPDATE_STATUS, (WPARAM)sText, 0);
-			SendMessage(GetDlgItem(phWnd, IDC_PROGRESS_DUMP), PBM_SETPOS, (LPARAM)(b + 1) / 100, 0);
+			std::cout << sText << "dumping blocks..." << b + 1 << bats << std::endl;
 
 		}
 
@@ -482,6 +479,13 @@ BOOL CVhdToDisk::DumpVhdToDisk(const LPWSTR sPath, const LPWSTR sDrive)
 	if(!bReturn)
 	{
 		TRACE("Failed to read dynamic header\n");
+		goto clean;
+	}
+
+	bReturn = Dump();
+	if (!bReturn)
+	{
+		TRACE("Failed to Dump\n");
 		goto clean;
 	}
 
