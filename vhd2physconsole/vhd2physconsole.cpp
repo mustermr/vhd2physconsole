@@ -13,6 +13,8 @@ using namespace std;
 
 wstring wStrParam1 = L"";
 wstring wStrParam2 = L"";
+wchar_t* wParam1;
+wchar_t* wParam2;
 
 wstring utf8ToUtf16(const string& utf8Str)
 {
@@ -39,12 +41,18 @@ DUMPTHRDSTRUCT dmpstruct;
 DWORD WINAPI DumpThread(LPVOID lpVoid)
 {
 	DUMPTHRDSTRUCT* pDumpStruct = (DUMPTHRDSTRUCT*)lpVoid;
-	//pDumpStruct = { wStrParam2 };
+
+	if (pVhd2disk->DumpVhdToDisk(pDumpStruct->sVhdPath, pDumpStruct->sDrive))
+		return 0;
+	else
+		return 1;
+	/*
 	if (pVhd2disk->DumpVhdToDisk(pDumpStruct->sVhdPath, pDumpStruct->sDrive))
 		cout << "VHD dumped on drive successfully!" << endl;
 	else
 		cout << "Failed to dump the VHD on drive!" << endl;
 	return 0;
+	*/
 }
 
 void ListPhysicalDrives()
@@ -81,22 +89,18 @@ void Help()
 
 string Dump()
 {
+	cout << "Dump() - Started" << endl;
 	DWORD dwThrdID = 0;
 	ZeroMemory(&dmpstruct, sizeof(DUMPTHRDSTRUCT));
 	//if (wcslen(dmpstruct.sVhdPath) < 3) return TRUE;
-	for (int i = 0; i < wStrParam1.size(); i < 0) {
-		dmpstruct.sVhdPath[i] = wStrParam1[i];
-	}
-	for (int i = 0; i < wStrParam2.size(); i < 0) {
-		dmpstruct.sDrive[i] = wStrParam2[i];
-	}
-	return ("dmpstruct.sVhdPath is: " + utf16ToUtf8(dmpstruct.sVhdPath));
-	return ("dmpstruct.sDrive is: " + utf16ToUtf8(dmpstruct.sDrive));
-	//dmpstruct.sVhdPath[0] = wStrParam1[0];
-	//dmpstruct.sDrive[0] = wStrParam2[0];
+	wcscpy_s(dmpstruct.sVhdPath, wParam1);
+	wcscpy_s(dmpstruct.sDrive, wParam2);
+	cout << "dmpstruct.sVhdPath is: " + utf16ToUtf8(dmpstruct.sVhdPath) << endl;
+	cout << "dmpstruct.sDrive is: " + utf16ToUtf8(dmpstruct.sDrive) << endl;
 	
-	// TODO this thread is stalling/failing somewhere without any printed output
+	// TODO this thread is failing somewhere without any printed output
 	hDumpThread = CreateThread(NULL, 0, DumpThread, &dmpstruct, 0, &dwThrdID);
+	return "Dump() - Finished";
 }
 
 
@@ -118,13 +122,13 @@ int main(int argc, CHAR* argv[])
 	}
 
 	char* vIn1 = argv[1];
-	wchar_t* wParam1 = new wchar_t[strlen(vIn1) + 1];
+	wParam1 = new wchar_t[strlen(vIn1) + 1];
 	mbstowcs_s(NULL, wParam1, strlen(vIn1) + 1, vIn1, strlen(vIn1));
 	wStrParam1 = wParam1;
 	string param1(argv[1]);
 
 	char* vIn2 = argv[2];
-	wchar_t* wParam2 = new wchar_t[strlen(vIn2) + 1];
+	wParam2 = new wchar_t[strlen(vIn2) + 1];
 	mbstowcs_s(NULL, wParam2, strlen(vIn2) + 1, vIn2, strlen(vIn2));
 	wStrParam2 = wParam2;
 	string param2(argv[2]);
