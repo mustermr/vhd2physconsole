@@ -40,12 +40,19 @@ DUMPTHRDSTRUCT dmpstruct;
 
 DWORD WINAPI DumpThread(LPVOID lpVoid)
 {
+	cout << "DumpThread() - Start" << endl;
 	DUMPTHRDSTRUCT* pDumpStruct = (DUMPTHRDSTRUCT*)lpVoid;
 
 	if (pVhd2disk->DumpVhdToDisk(pDumpStruct->sVhdPath, pDumpStruct->sDrive))
+	{
+		cout << "DumpThread() - Return 0 (True)" << endl;
 		return 0;
+	}
 	else
+	{
+		cout << "DumpThread() - Return 1 (False)" << endl;
 		return 1;
+	}
 	/*
 	if (pVhd2disk->DumpVhdToDisk(pDumpStruct->sVhdPath, pDumpStruct->sDrive))
 		cout << "VHD dumped on drive successfully!" << endl;
@@ -98,9 +105,9 @@ string Dump()
 	cout << "dmpstruct.sVhdPath is: " + utf16ToUtf8(dmpstruct.sVhdPath) << endl;
 	cout << "dmpstruct.sDrive is: " + utf16ToUtf8(dmpstruct.sDrive) << endl;
 	
-	// TODO this thread is failing somewhere without any printed output
+	// TODO this thread is failing somewhere without any captured/printed output
 	hDumpThread = CreateThread(NULL, 0, DumpThread, &dmpstruct, 0, &dwThrdID);
-	return "Dump() - Finished";
+	return "Dump() - Thread handle: " + *reinterpret_cast<string*>(hDumpThread) + " Finished";
 }
 
 

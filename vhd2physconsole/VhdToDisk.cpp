@@ -1,11 +1,28 @@
 #include "StdAfx.h"
 #include "Trace.h"
 #include "VhdToDisk.h"
+#include <locale>
+#include <codecvt>
 #include "resource.h"
 #include <iostream>
 
+using namespace std;
+
+wstring utf8ToUtf16_2(const string& utf8Str)
+{
+	wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+	return conv.from_bytes(utf8Str);
+}
+
+string utf16ToUtf8_2(const wstring& utf16Str)
+{
+	wstring_convert<codecvt_utf8_utf16<wchar_t>> conv;
+	return conv.to_bytes(utf16Str);
+}
+
 CVhdToDisk::CVhdToDisk(void)
 {
+	cout << "CVhdToDisk::CVhdToDisk(void) - Start" << endl;
 	m_hVhdFile = NULL;
 	m_hPhysicalDrive = NULL;
 
@@ -15,6 +32,7 @@ CVhdToDisk::CVhdToDisk(void)
 
 CVhdToDisk::CVhdToDisk(LPWSTR sPath)
 {
+	cout << "CVhdToDisk::CVhdToDisk() - Start" << endl;
 	m_hVhdFile = NULL;
 	m_hPhysicalDrive = NULL;
 
@@ -34,6 +52,7 @@ CVhdToDisk::CVhdToDisk(LPWSTR sPath)
 
 CVhdToDisk::~CVhdToDisk(void)
 {
+	cout << "CVhdToDisk::~CVhdToDisk() - Start" << endl;
 	if(m_hVhdFile)
 		CloseVhdFile();
 
@@ -43,6 +62,7 @@ CVhdToDisk::~CVhdToDisk(void)
 
 BOOL CVhdToDisk::OpenVhdFile(LPWSTR sPath)
 {
+	cout << "CVhdToDisk::OpenVhdFile() - Start" << endl;
 	m_hVhdFile = CreateFile(sPath
 		, GENERIC_READ
 		, FILE_SHARE_READ
@@ -58,6 +78,7 @@ BOOL CVhdToDisk::OpenVhdFile(LPWSTR sPath)
 
 BOOL CVhdToDisk::CloseVhdFile()
 {
+	cout << "CVhdToDisk::CloseVhdFile() - Start" << endl;
 	BOOL bReturn = TRUE;
 
 	if(m_hVhdFile != INVALID_HANDLE_VALUE)
@@ -70,6 +91,7 @@ BOOL CVhdToDisk::CloseVhdFile()
 
 BOOL CVhdToDisk::OpenPhysicalDrive(LPWSTR sDrive)
 {
+	cout << "CVhdToDisk::OpenPhysicalDrive() - Start" << endl;
 	m_hPhysicalDrive = CreateFile(sDrive
 		, GENERIC_WRITE
 		, 0
@@ -86,6 +108,7 @@ BOOL CVhdToDisk::OpenPhysicalDrive(LPWSTR sDrive)
 
 BOOL CVhdToDisk::ClosePhysicalDrive()
 {
+	cout << "CVhdToDisk::ClosePhysicalDrive() - Start" << endl;
 	BOOL bReturn = TRUE;
 
 	if(m_hPhysicalDrive != INVALID_HANDLE_VALUE)
@@ -98,6 +121,7 @@ BOOL CVhdToDisk::ClosePhysicalDrive()
 
 BOOL CVhdToDisk::ReadFooter()
 {
+	cout << "CVhdToDisk::ReadFooter() - Start" << endl;
 	BOOL bReturn = FALSE;
 	DWORD dwByteRead = 0;
 
@@ -113,6 +137,7 @@ BOOL CVhdToDisk::ReadFooter()
 
 BOOL CVhdToDisk::ReadDynHeader()
 {
+	cout << "CVhdToDisk::ReadDynHeader() - Start" << endl;
 	BOOL bReturn = FALSE;
 	DWORD dwByteRead = 0;
 	LARGE_INTEGER filepointer;
@@ -132,6 +157,7 @@ BOOL CVhdToDisk::ReadDynHeader()
 
 BOOL CVhdToDisk::ParseFirstSector(HWND hDlg)
 {
+	cout << "CVhdToDisk::ParseFirstSector() - Start" << endl;
 	BOOL bReturn = FALSE;
 	DWORD dwBootSector = 0x00000000;
 	DWORD dwByteRead = 0;
@@ -157,7 +183,7 @@ BOOL CVhdToDisk::ParseFirstSector(HWND hDlg)
 
 	if(!SetFilePointerEx(m_hVhdFile, filepointer, NULL, FILE_BEGIN))
 	{
-		TRACE("Failed to SetFilePointer(0x%08X, %lld, 0, FILE_BEGIN)\n", m_hVhdFile, filepointer.QuadPart);
+		//TRACE("Failed to SetFilePointer(0x%08X, %lld, 0, FILE_BEGIN)\n", m_hVhdFile, filepointer.QuadPart);
 		if (bitmap) delete[] bitmap;
 		if (bat) delete[] bat;
 		if (pBuff) delete[] pBuff;
@@ -166,7 +192,7 @@ BOOL CVhdToDisk::ParseFirstSector(HWND hDlg)
 
 	if(!ReadFile(m_hVhdFile, bat, bats * sizeof(*bat), &dwByteRead, 0))
 	{
-		TRACE("Failed to ReadFile(0x%08X, 0x%08X, %d,...) with error 0x%08X\n", m_hVhdFile, bat, bats * 4, GetLastError());
+		//TRACE("Failed to ReadFile(0x%08X, 0x%08X, %d,...) with error 0x%08X\n", m_hVhdFile, bat, bats * 4, GetLastError());
 		if (bitmap) delete[] bitmap;
 		if (bat) delete[] bat;
 		if (pBuff) delete[] pBuff;
@@ -322,6 +348,7 @@ BOOL CVhdToDisk::ParseFirstSector(HWND hDlg)
 
 BOOL CVhdToDisk::Dump()
 {
+	cout << "CVhdToDisk::Dump() - Start" << endl;
 	BOOL bReturn = FALSE;
 	DWORD dwByteRead = 0;
 	UINT32 emptySectors = 0;
@@ -348,7 +375,7 @@ BOOL CVhdToDisk::Dump()
 	
 	if(!SetFilePointerEx(m_hVhdFile, filepointer, NULL, FILE_BEGIN))
 	{
-		TRACE("Failed to SetFilePointer(0x%08X, %lld, 0, FILE_BEGIN)\n", m_hVhdFile, filepointer.QuadPart);
+		//TRACE("Failed to SetFilePointer(0x%08X, %lld, 0, FILE_BEGIN)\n", m_hVhdFile, filepointer.QuadPart);
 		if (bitmap) delete[] bitmap;
 		if (bat) delete[] bat;
 		if (pBuff) delete[] pBuff;
@@ -357,7 +384,7 @@ BOOL CVhdToDisk::Dump()
 	
 	if(!ReadFile(m_hVhdFile, bat, bats * sizeof(*bat), &dwByteRead, 0))
 	{
-		TRACE("Failed to ReadFile(0x%08X, 0x%08X, %d,...) with error 0x%08X\n", m_hVhdFile, bat, bats * 4, GetLastError());
+		//TRACE("Failed to ReadFile(0x%08X, 0x%08X, %d,...) with error 0x%08X\n", m_hVhdFile, bat, bats * 4, GetLastError());
 		if (bitmap) delete[] bitmap;
 		if (bat) delete[] bat;
 		if (pBuff) delete[] pBuff;
@@ -428,7 +455,7 @@ BOOL CVhdToDisk::Dump()
 
 		filepointer.QuadPart = (b * LONGLONG(sectorsPerBlock)) * 512LL;
 
-		TRACE("Writing at %lld\n", filepointer.QuadPart);
+		//TRACE("Writing at %lld\n", filepointer.QuadPart);
 
 		SetFilePointerEx(m_hPhysicalDrive, filepointer, NULL, FILE_BEGIN);
 
@@ -447,45 +474,56 @@ BOOL CVhdToDisk::Dump()
 
 BOOL CVhdToDisk::DumpVhdToDisk(const LPWSTR sPath, const LPWSTR sDrive)
 {
+	cout << "CVhdToDisk::DumpVhdToDisk() - Start" << endl;
 	BOOL bReturn = FALSE;
 
+	cout << "CVhdToDisk::DumpVhdToDisk() - m_hVhdFile" << endl;
 	if(m_hVhdFile == NULL)
 	{
+		cout << "CVhdToDisk::DumpVhdToDisk() - m_hVhdFile value is NULL" << endl;
 		bReturn = OpenVhdFile(sPath);
 		if(!bReturn)
 		{
-			TRACE("Failed to open %s\n", sPath);
+			cout << "CVhdToDisk::DumpVhdToDisk() - Failed to open file: " << utf16ToUtf8_2(sPath) << endl;
+			//TRACE("Failed to open %s\n", sPath);
 			goto exit;
 		}
 	}
-	
+
+	cout << "CVhdToDisk::DumpVhdToDisk() - OpenPhysicalDrive" << endl;
 	bReturn = OpenPhysicalDrive(sDrive);
 	if(!bReturn)
 	{
-		TRACE("Failed to open physical drive: %S\n", sDrive);
+		cout << "CVhdToDisk::DumpVhdToDisk() - Failed to open physical drive: " << utf16ToUtf8_2(sDrive) << endl;
+		//TRACE("Failed to open physical drive: %S\n", sDrive);
 		CloseVhdFile();
 		goto exit;
 	}
 	
-
+	cout << "CVhdToDisk::DumpVhdToDisk() - ReadFooter" << endl;
 	bReturn = ReadFooter();
 	if(!bReturn)
 	{
-		TRACE("Failed to read footer\n");
+		cout << "CVhdToDisk::DumpVhdToDisk() - Failed to read footer" << endl;
+		//TRACE("Failed to read footer\n");
 		goto clean;
 	}
 
+	cout << "CVhdToDisk::DumpVhdToDisk() - ReadDynHeader" << endl;
 	bReturn = ReadDynHeader();
 	if(!bReturn)
 	{
-		TRACE("Failed to read dynamic header\n");
+		cout << "CVhdToDisk::DumpVhdToDisk() - Failed to read dynamic header" << endl;
+		//TRACE("Failed to read dynamic header\n");
 		goto clean;
 	}
 
+	cout << "CVhdToDisk::DumpVhdToDisk() - Dump" << endl;
 	bReturn = Dump();
 	if (!bReturn)
 	{
-		TRACE("Failed to Dump\n");
+		cout << "CVhdToDisk::DumpVhdToDisk() - Failed to Dump" << endl;
+		//TRACE("Failed to Dump\n");
 		goto clean;
 	}
 
