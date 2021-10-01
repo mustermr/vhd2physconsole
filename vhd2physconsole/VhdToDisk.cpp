@@ -477,7 +477,7 @@ BOOL CVhdToDisk::DumpVhdToDisk(const LPWSTR sPath, const LPWSTR sDrive)
 	cout << "CVhdToDisk::DumpVhdToDisk() - Start" << endl;
 	BOOL bReturn = FALSE;
 
-	cout << "CVhdToDisk::DumpVhdToDisk() - m_hVhdFile" << endl;
+	cout << "CVhdToDisk::DumpVhdToDisk() - m_hVhdFile: " << (int)m_hVhdFile << endl;
 	if(m_hVhdFile == NULL)
 	{
 		cout << "CVhdToDisk::DumpVhdToDisk() - m_hVhdFile value is NULL" << endl;
